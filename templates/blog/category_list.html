@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block title %}{{ page_title }} - {{ site_name }}{% endblock %}
+
+{% block content %}
+<h1>{{ page_title }}</h1>
+<p>{{ page_description }}</p>
+
+<ul class="category-list">
+  {% for category in categories %}
+    <li class="category-item">
+      <a href="{% url 'blog:category_detail' category.slug %}">
+        {{ category.name }}
+      </a>
+      <span class="article-count">({{ category.article_count }} {% trans 'articles' %})</span>
+      
+      {% if category.parent_category %}
+        <span class="parent-category">
+          {% trans 'Parent' %}: <a href="{% url 'blog:category_detail' category.parent_category.slug %}">
+            {{ category.parent_category.name }}
+          </a>
+        </span>
+      {% endif %}
+    </li>
+  {% empty %}
+    <li>{% trans 'No categories found.' %}</li>
+  {% endfor %}
+</ul>
+
+{# 分页控件 #}
+{% if is_paginated %}
+<div class="pagination">
+  {% if page_obj.has_previous %}
+    <a href="?page={{ page_obj.previous_page_number }}">{% trans 'Previous' %}</a>
+  {% endif %}
+  
+  <span class="current-page">{{ page_obj.number }} / {{ paginator.num_pages }}</span>
+  
+  {% if page_obj.has_next %}
+    <a href="?page={{ page_obj.next_page_number }}">{% trans 'Next' %}</a>
+  {% endif %}
+</div>
+{% endif %}
+{% endblock %}

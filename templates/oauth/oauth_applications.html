@@ -1,0 +1,13 @@
+{% load i18n %}
+<div class="widget-login">
+    {% if apps %}
+        <small>
+            {% trans 'quick login' %}:
+        </small>
+        {% for icon,url in apps %}
+            <a href="{{ url }}" rel="nofollow">
+                <span class="icon-sn-{{ icon }}"></span>
+            </a>
+        {% endfor %}
+    {% endif %}
+</div>

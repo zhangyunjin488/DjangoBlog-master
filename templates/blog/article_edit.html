@@ -1,0 +1,115 @@
+{% extends 'share_layout/base.html' %}
+{% load blog_tags %}
+{% load i18n %}
+{% load static %}  {# 加载 static 标签库 #}
+{% load widget_tweaks %}  {# 加载 widget_tweaks 标签库 #}
+
+{% block title %}
+    {% if form.instance.id %}{% trans 'Edit Article' %}: {{ form.instance.title }}{% else %}{% trans 'Create New Article' %}{% endif %} | {{ SITE_NAME }}
+{% endblock %}
+
+{% block compress_css %}
+    <link rel="stylesheet" href="{% static 'blog/css/markdown-editor.css' %}">
+{% endblock %}
+
+{% block content %}
+    <div id="primary" class="site-content">
+        <div id="content" role="main">
+            <header class="archive-header">
+                <h1 class="archive-title">
+                    {% if form.instance.id %}
+                        {% trans 'Edit Article' %}
+                    {% else %}
+                        {% trans 'Create New Article' %}
+                    {% endif %}
+                </h1>
+            </header>
+
+            <div class="entry-content">
+                <form method="post" class="article-form">
+                    {% csrf_token %}
+                    
+                    {% if form.errors %}
+                        <div class="alert alert-danger">
+                            {% trans 'Please correct the errors below.' %}
+                        </div>
+                    {% endif %}
+
+                    <div class="form-group">
+                        <label for="{{ form.title.id_for_label }}">{% trans 'Title' %} <span class="required">*</span></label>
+                        {{ form.title.errors }}
+                        {{ form.title|add_class:"form-control"|attr:"placeholder:Enter article title" }}
+                    </div>
+
+                    <div class="form-group">
+                        <label for="{{ form.category.id_for_label }}">{% trans 'Category' %} <span class="required">*</span></label>
+                        {{ form.category.errors }}
+                        {{ form.category|add_class:"form-control" }}
+                    </div>
+
+                    <div class="form-group">
+                        <label for="{{ form.tags.id_for_label }}">{% trans 'Tags' %}</label>
+                        <small class="form-text text-muted">{% trans 'Separate multiple tags with commas' %}</small>
+                        {{ form.tags.errors }}
+                        {{ form.tags|add_class:"form-control"|attr:"placeholder:tag1,tag2,tag3" }}
+                    </div>
+
+                    <div class="form-group">
+                        <label for="{{ form.show_toc.id_for_label }}">
+                            {{ form.show_toc }}
+                            {% trans 'Show Table of Contents' %}
+                        </label>
+                        <small class="form-text text-muted">{% trans 'Display TOC if article contains headings' %}</small>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="{{ form.body.id_for_label }}">{% trans 'Content' %} <span class="required">*</span></label>
+                        <small class="form-text text-muted">{% trans 'Supports Markdown formatting' %}</small>
+                        {{ form.body.errors }}
+                        {{ form.body|add_class:"form-control markdown-editor"|attr:"rows:20"|attr:"placeholder:Write your content here (Markdown supported)" }}
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary">
+                            {% if form.instance.id %}{% trans 'Update Article' %}{% else %}{% trans 'Publish Article' %}{% endif %}
+                        </button>
+                        <a href="{% url 'blog:my_articles' %}" class="btn btn-secondary">{% trans 'Cancel' %}</a>
+                        {% if form.instance.id %}
+                            <button type="submit" name="action" value="delete" class="btn btn-danger float-right" 
+                                    onclick="return confirm('{% trans "Are you sure you want to delete this article?" %}')">
+                                {% trans 'Delete Article' %}
+                            </button>
+                        {% endif %}
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+{% block compress_js %}
+    <script src="{% static 'blog/js/markdown-it.min.js' %}"></script>
+    <script src="{% static 'blog/js/markdown-editor.js' %}"></script>
+
+    <script>
+        // 初始化Markdown编辑器预览
+        document.addEventListener('DOMContentLoaded', function() {
+            const editor = document.querySelector('.markdown-editor');
+            if (editor) {
+                // 简单的实时预览功能（可根据实际需求扩展）
+                const previewBtn = document.createElement('button');
+                previewBtn.className = 'btn btn-light mb-2';
+                previewBtn.textContent = '{% trans "Preview" %}';
+                previewBtn.onclick = function() {
+                    const previewDiv = document.createElement('div');
+                    previewDiv.className = 'markdown-preview card p-3 mt-2';
+                    previewDiv.innerHTML = marked(editor.value); // 需要引入marked库
+                    editor.parentNode.insertBefore(previewDiv, editor.nextSibling);
+                    setTimeout(() => previewDiv.remove(), 5000); // 5秒后自动关闭预览
+                };
+                editor.parentNode.insertBefore(previewBtn, editor);
+            }
+        });
+    </script>
+{% endblock %}

@@ -1,0 +1,27 @@
+{% extends 'share_layout/base.html' %}
+{% load i18n %}
+{% block header %}
+    <title> {{ title }}</title>
+{% endblock %}
+{% block content %}
+    <div id="primary" class="site-content">
+        <div id="content" role="main">
+
+            <header class="archive-header">
+
+                <h2 class="archive-title"> {{ content }}</h2>
+            </header><!-- .archive-header -->
+            <br/>
+            <header class="archive-header" style="text-align: center">
+
+                <a href="{% url "account:login" %}">
+                    {% trans 'login' %}
+                </a>
+                |
+                <a href="/">
+                    {% trans 'back to the homepage' %}
+                </a>
+            </header><!-- .archive-header -->
+        </div>
+    </div>
+{% endblock %}
